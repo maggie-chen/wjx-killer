@@ -4,15 +4,15 @@ import re
 import random
 import time
 
-# 需要填写调查问卷的url和次数
-fill_url = 'https://www.wjx.cn/jq/50306537.aspx'
-n = 200
+"""以下填写参数"""
+fill_url = 'https://www.wjx.cn/jq/12345678.aspx'
+n = 99
+interval = 1.5
+"""n是次数 interval是刷卷间隔时间单位为秒"""
 
 session = requests.Session()
 
 # 获取调查问卷的页面
-
-
 def get_fill_content(url):
     headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36'
@@ -22,8 +22,6 @@ def get_fill_content(url):
     return res.text
 
 # 获取调查问卷的题目
-
-
 def get_title_list(content):
     main_soup = BeautifulSoup(content, 'lxml')
     title_soup_list = main_soup.find_all(id=re.compile(r'div\d'))
@@ -42,11 +40,10 @@ def get_title_list(content):
     return title_list
 
 
-A_num = ord('A')
+
 # 打印题目
-
-
 def print_title_list(title_list):
+    A_num = ord('A')
     for title_num, title in enumerate(title_list):
         print(str(title_num+1) + '.' + title['title'])
         for choice_num, choice_str in enumerate(title['choice_list']):
@@ -54,8 +51,6 @@ def print_title_list(title_list):
         print('\n')
 
 # 随机选择
-
-
 def random_choose(title_list):
     for title in title_list:
         if title['is_choice']:
@@ -64,8 +59,6 @@ def random_choose(title_list):
             title['answer'] = ''
 
 # 构造提交表单数据
-
-
 def get_submit_data(title_list):
     form_data = ''
     for num in range(len(title_list)):
@@ -76,16 +69,10 @@ def get_submit_data(title_list):
     }
 
 # 获取随机ip，避免访问频繁而导致的验证码
-
-
 def get_random_ip():
     return (str(random.randint(1, 255))+".")+(str(random.randint(1, 255))+".")+(str(random.randint(1, 255))+".")+str(random.randint(1, 255))
 
-
-submit_host_url = 'https://www.wjx.cn/joinnew/processjq.ashx?'
 # 构造提交的url
-
-
 def get_submit_url(curid, rnnum):
     start_time = time.localtime(time.time() - random.randint(300, 1000))
     query_dict = {
@@ -102,11 +89,10 @@ def get_submit_url(curid, rnnum):
     query_str = ''
     for key, value in query_dict.items():
         query_str += key + '=' + value + '&'
+    submit_host_url = 'https://www.wjx.cn/joinnew/processjq.ashx?'
     return submit_host_url + query_str[:-1]
 
 # 从页面中获取curid和rnnum，用作提交调查问卷
-
-
 def get_submit_query(content):
     curid_reg = re.compile(r'activityId = ?\'?(\d+?)\'?;')
     rnnum_reg = re.compile(r'rndnum="(\d+.?\d+?)";')
@@ -121,10 +107,9 @@ submit_headers = {
     'accept-encoding': 'gzip, deflate, br',
     'accept-language': 'zh-CN,zh;q=0.9',
     'content-type': 'application/x-www-form-urlencoded;',
-    # 'cookie': '.ASPXANONYMOUS=weSCc8wu1AEkAAAANjE3MGMxZGItNDQ5OC00YWI3LTkxZGEtNmVkNTY5MzU5OTdlVi6pfvz50MfKv5R7T8xKFWe2LqE1; UM_distinctid=163b2116ddfbbc-048109171a2d4f-737356c-144000-163b2116de07fd; jac24389107=04539338; CNZZDATA4478442=cnzz_eid%3D1533293032-1527696898-%26ntime%3D1527730790; Hm_lvt_21be24c80829bd7a683b2c536fcf520b=1527700877,1527732232; Hm_lpvt_21be24c80829bd7a683b2c536fcf520b=1527732232',
     'origin': 'https://www.wjx.cn',
     'referer': 'https://www.wjx.cn/m/24389107.aspx',
-    # 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36',
     'x-requested-with': 'XMLHttpRequest'
 }
 
@@ -140,7 +125,6 @@ curid, rnnum = get_submit_query(fill_content)
 
 # 运行部分
 for i in range(n):
-    # if (i % 5 == 0):
     '''页面请求'''
     # 调查问卷填写页面的内容
     fill_content = get_fill_content(fill_url)
@@ -148,7 +132,6 @@ for i in range(n):
     title_list = get_title_list(fill_content)
     # 从页面中获取的两个有关提交需要的参数
     curid, rnnum = get_submit_query(fill_content)
-
     '''提交'''
     # 随机选择答案
     random_choose(title_list)  # 随机选择答案
@@ -163,5 +146,5 @@ for i in range(n):
     # 查看结果
     print(res.text)
     print(res.request.url)
-    time.sleep(0.5)
+    time.sleep(interval)
     session = requests.Session()
