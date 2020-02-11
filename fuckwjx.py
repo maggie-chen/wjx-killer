@@ -4,6 +4,10 @@ import re
 import random
 import time
 
+# 需要填写调查问卷的url和次数
+fill_url = 'https://www.wjx.cn/jq/50306537.aspx'
+n = 200
+
 session = requests.Session()
 
 # 获取调查问卷的页面
@@ -13,7 +17,7 @@ def get_fill_content(url):
     headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36'
     }
-    res = session.get(url, headers=headers)  # , headers=headers)
+    res = session.get(url, headers=headers)
     res.raise_for_status()
     return res.text
 
@@ -124,9 +128,6 @@ submit_headers = {
     'x-requested-with': 'XMLHttpRequest'
 }
 
-# 需要填写调查问卷的url
-fill_url = 'https://www.wjx.cn/jq/50306537.aspx'
-# 'https://ks.wjx.top/jq/xxxxxxxx.aspx'#'https://www.wjx.cn/jq/xxxxxxxx.aspx' #'https://www.wjx.cn/m/xxxxxxxx.aspx'
 
 # 调查问卷填写页面的内容
 fill_content = get_fill_content(fill_url)
@@ -136,8 +137,6 @@ title_list = get_title_list(fill_content)
 curid, rnnum = get_submit_query(fill_content)
 # print_title_list(title_list)
 
-# 提交次数
-n = 2010
 
 # 运行部分
 for i in range(n):
