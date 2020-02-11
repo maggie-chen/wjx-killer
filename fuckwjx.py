@@ -115,7 +115,7 @@ curid, rnnum = get_submit_query(fill_content)
 # print_title_list(title_list)
 
 # 提交次数
-n = 200
+n = 2010
 
 # 运行部分
 for i in range(n):
